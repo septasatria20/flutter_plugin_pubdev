@@ -55,6 +55,8 @@ return const AutoSizeText(
 
 Namun, setelah menambahkan kode di atas akan muncul error:
 
+![Gambar 04](images/gambar04.png)
+
 ```
 The method 'AutoSizeText' isn't defined for the type 'RedTextWidget'.
 ```
@@ -67,7 +69,7 @@ Solusinya, tambahkan import berikut di atas file:
 import 'package:auto_size_text/auto_size_text.dart';
 ```
 
-![Gambar 04](images/gambar04.png)
+![Gambar 05](images/gambar05.png)
 
 
 ---
@@ -93,7 +95,7 @@ class RedTextWidget extends StatelessWidget {
 }
 ```
 
-![Gambar 05](images/gambar05.png)
+![Gambar 06](images/gambar06.png)
 
 ---
 
@@ -101,13 +103,15 @@ class RedTextWidget extends StatelessWidget {
 
 Tambahkan widget di dalam `children:` pada class `_MyHomePageState`:
 
+![Gambar 07](images/gambar07.png)
+
 ```dart
 RedTextWidget(text: 'Teks Merah Otomatis'),
 ```
 
 Kemudian jalankan aplikasi dengan menekan **F5**.
 
-![Gambar 06](images/gambar06.png)
+![Gambar 08](images/gambar08.png)
 
 
 ---
@@ -128,7 +132,7 @@ Widget 2 (Text standar):
 - Lebar container 100 piksel, background hijau  
 - Ukuran font tetap
 
-![Gambar 07](images/gambar07.png)
+![Gambar 09](images/gambar09.png)
 
 
 ---
@@ -147,3 +151,54 @@ Penjelasan Parameter pada AutoSizeText
 Kesimpulan
 
 Parameter-parameter dalam `AutoSizeText` mengatur isi, gaya, jumlah baris maksimal, dan cara pemotongan teks agar teks tetap proporsional dan terbaca di ruang terbatas.
+
+---
+
+## Troubleshooting: error Gradle "No matching variant of project :gradle was found"
+
+Ringkasan masalah:
+- Gradle melaporkan komponen plugin (dev.flutter.plugin:gradle) dikompilasi untuk Java 11 sementara consumer dikonfigurasi untuk Java 8, dan ada ketidakcocokan atribut `org.gradle.plugin.api-version` (mis. '7.6').
+
+Langkah perbaikan (pilih salah satu yang sesuai):
+
+1) Gunakan JDK 11 untuk Gradle (direkomendasikan)
+- Install JDK 11.
+- Set environment variable JAVA_HOME ke path JDK11, atau di Android Studio: File > Settings > Build, Execution, Deployment > Build Tools > Gradle > Gradle JDK pilih Java 11.
+- Atau set di android/gradle.properties (ganti path sesuai instalasi Anda):
+```
+org.gradle.java.home=C:\\Program Files\\Java\\jdk-11.0.x
+```
+
+2) Pastikan Gradle wrapper + AGP kompatibel
+- Contoh file android/gradle/wrapper/gradle-wrapper.properties:
+```
+distributionUrl=https\://services.gradle.org/distributions/gradle-7.6-all.zip
+```
+- Contoh update android/build.gradle (project-level) agar AGP cocok:
+```gradle
+dependencies {
+    // gunakan versi AGP kompatibel dengan Gradle 7.6, mis. 7.4.2
+    classpath 'com.android.tools.build:gradle:7.4.2'
+    // ...existing classpath entries...
+}
+```
+
+3) Jika ada subproject/plugin lokal (`:gradle`) yang Anda kontrol
+- Jika Anda bisa ubah build.gradle plugin tersebut agar kompatibel Java 8:
+```gradle
+// di project :gradle build.gradle
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+```
+- Atau rebuild plugin dengan toolchain yang sesuai.
+
+Langkah akhir:
+- Jalankan: flutter clean
+- Jalankan: flutter pub get
+- Buka android/ di Android Studio -> Sync Project with Gradle Files, atau jalankan dari terminal:
+  - ./gradlew --version
+  - ./gradlew clean build
+
+Jika setelah langkah di atas masih error, salin pesan error terbaru dan kirim kembali (cantumkan isi android/gradle.properties dan android/gradle/wrapper/gradle-wrapper.properties).
